@@ -1,105 +1,121 @@
-BLACK, EMPTY, WHITE = -1, 0, 1
-board = [[EMPTY] * 8] * 8
-for row in board:
-    print (row)
+import pygame
+import numpy as np
 
-def printBoard(board):
-    for row in board:
-        for square in row:
-            if square == BLACK:
-                print("B", end="\t")
-            elif square == WHITE:
-                print("W", end="\t")
-            elif square == EMPTY:
-                print("O", end="\t")
-            
-        print("\n")
+# Initialize Pygame
+pygame.init()
 
+# Constants
+BOARD_SIZE = 8  # 8x8 board
+CELL_SIZE = 80  # Cell size in pixels
+SCREEN_SIZE = BOARD_SIZE * CELL_SIZE
+WHITE, BLACK, EMPTY, HIGHLIGHT = 1, -1, 0, 2
 
+# Colors
+GREEN = (34, 139, 34)
+WHITE_COLOR = (255, 255, 255)
+BLACK_COLOR = (0, 0, 0)
+HIGHLIGHT_COLOR = (255, 215, 0)
 
-'''
-validate function:
-verifies a move is proper chess notation (letter-number)
-letter must be a - h
-number must be 1 - 8
-'''
+# Initialize screen
+screen = pygame.display.set_mode((SCREEN_SIZE, SCREEN_SIZE))
+pygame.display.set_caption("Othello")
 
-def validate(move):
-    if len(move) != 2:
+# Initialize an empty 8x8 board
+board = np.zeros((BOARD_SIZE, BOARD_SIZE), dtype=int)
+
+# Place initial pieces
+board[3][3] = WHITE
+board[3][4] = BLACK
+board[4][3] = BLACK
+board[4][4] = WHITE
+
+def draw_board():
+    screen.fill(GREEN)
+    # Draw grid
+    for x in range(1, BOARD_SIZE):
+        pygame.draw.line(screen, BLACK_COLOR, (x * CELL_SIZE, 0), (x * CELL_SIZE, SCREEN_SIZE))
+        pygame.draw.line(screen, BLACK_COLOR, (0, x * CELL_SIZE), (SCREEN_SIZE, x * CELL_SIZE))
+
+    # Draw pieces
+    for row in range(BOARD_SIZE):
+        for col in range(BOARD_SIZE):
+            if board[row][col] == WHITE:
+                pygame.draw.circle(screen, WHITE_COLOR, (col * CELL_SIZE + CELL_SIZE // 2, row * CELL_SIZE + CELL_SIZE // 2), CELL_SIZE // 2 - 5)
+            elif board[row][col] == BLACK:
+                pygame.draw.circle(screen, BLACK_COLOR, (col * CELL_SIZE + CELL_SIZE // 2, row * CELL_SIZE + CELL_SIZE // 2), CELL_SIZE // 2 - 5)
+
+def is_valid_move(board, row, col, color):
+    if board[row][col] != EMPTY:
         return False
-    if ord(move.substr(0,1)) - 97 < 0 or ord(move.substr(0,1)) - 97 > 8:
+    directions = [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, -1), (1, -1), (-1, 1)]
+    for dr, dc in directions:
+        r, c = row + dr, col + dc
+        count = 0
+        while 0 <= r < BOARD_SIZE and 0 <= c < BOARD_SIZE and board[r][c] == -color:
+            r += dr
+            c += dc
+            count += 1
+        if count > 0 and 0 <= r < BOARD_SIZE and 0 <= c < BOARD_SIZE and board[r][c] == color:
+            return True
+    return False
+
+def place_piece(board, row, col, color):
+    if not is_valid_move(board, row, col, color):
         return False
-    if int(move.substr(1,2), 10) < 0 or int(move.substr(1,2), 10) > 8:
-        return False
-    
+    board[row][col] = color
+    directions = [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, -1), (1, -1), (-1, 1)]
+    for dr, dc in directions:
+        r, c = row + dr, col + dc
+        flip_positions = []
+        while 0 <= r < BOARD_SIZE and 0 <= c < BOARD_SIZE and board[r][c] == -color:
+            flip_positions.append((r, c))
+            r += dr
+            c += dc
+        if flip_positions and 0 <= r < BOARD_SIZE and 0 <= c < BOARD_SIZE and board[r][c] == color:
+            for fr, fc in flip_positions:
+                board[fr][fc] = color
     return True
 
+def get_score(board):
+    white_score = np.sum(board == WHITE)
+    black_score = np.sum(board == BLACK)
+    return white_score, black_score
 
-def toGrid(move):
-    return (ord(move.substr(0,1)) - 97, ord(move.substr(1,2)) - 1)
-
-def move(turn):
-    if turn == BLACK:
-        move = input("Black, enter the chess notation location of your move:\t\t").strip().lower()
-        while validate(move) != True:
-            move = input("You entered:\t\t", move, "\nBlack, enter the chess notation location of your move:\t\t").strip().lower()
-        move = toGrid(move)
-        board[move[0]][move[1]] = BLACK
-        print(chr(27) + "[2J")
-    
-    else:
-        move = input("White, enter the chess notation location of your move:\t\t").strip().lower()
-        while validate(move) != True:
-            move = input("You entered:\t\t", move, "\nWhite, enter the chess notation location of your move:\t\t").strip().lower()
-        move = toGrid(move)
-        board[move[0]][move[1]] = WHITE
-        print(chr(27) + "[2J")
-
-    return
-    
-    
-
-def checkWin(board):
-    for row in board:
-        for square in row:
-            if square == EMPTY:
+def is_game_over(board):
+    for row in range(BOARD_SIZE):
+        for col in range(BOARD_SIZE):
+            if board[row][col] == EMPTY and (is_valid_move(board, row, col, BLACK) or is_valid_move(board, row, col, WHITE)):
                 return False
-            
-    
     return True
 
 def main():
-    print("This is the othello game. Place a piece using chess notation (rows A-H, cols 1-8)")
+    clock = pygame.time.Clock()
+    current_color = BLACK
+    running = True
 
-    board[3][3] = BLACK
-    board[3][4] = BLACK
-    board[3][4] = WHITE
-    board[4][3] = WHITE
+    while running:
+        draw_board()
+        pygame.display.flip()
 
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                x, y = event.pos
+                row, col = y // CELL_SIZE, x // CELL_SIZE
+                if is_valid_move(board, row, col, current_color):
+                    place_piece(board, row, col, current_color)
+                    current_color = -current_color  # Switch turns
 
-    turn = 0
+                    if is_game_over(board):
+                        running = False  # Exit the loop to end the game
+                        white_score, black_score = get_score(board)
+                        print("Game Over")
+                        print(f"White: {white_score}, Black: {black_score}")
+                        break  # Exit the for-loop if the game is over
 
-    while turn != BLACK and turn != WHITE:
-        
-        turn = input("who is going first?\t\t").strip().lower()
-        print(turn)
+        clock.tick(30)
+    pygame.quit()
 
-        if turn.strip().lower() == 'white':
-            turn = WHITE
-            print("valid A")
-            print(turn)
-        elif turn == 'black':
-            turn = BLACK
-            print("valid B")
-        else:
-            input("please enter \'white\' or \'black\' to select who is going first")
-    
-    while checkWin(board) != True:
-        print("The board:\n\n")
-        printBoard(board)
-        move(turn)
-        turn *= -1
-
-
-main()    
-
+if __name__ == "__main__":
+    main()

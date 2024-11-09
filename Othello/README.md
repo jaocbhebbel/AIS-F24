@@ -25,4 +25,13 @@ Our reward function should consider a variety of statistics, such as # of pieces
 
 ### 2. Choosing a reinforcement learning algorithm
 
-There are quite a few reinforcement learning algorithms out there. The
+There are quite a few reinforcement learning algorithms out there. The one we are going with is called a Deep Q-Learning Network (DQN). This builds off of a formal logic construct called the Markov Decision Process (MDP), which makes choices in an analytical manner that can be represented with math.
+
+A MDP utilizes these 5 processes: Actions, States, the Transition Function, the Reward Function, and the Discount variable. The MDP works inside of an environment, and controls the actions of an agent. 
+- The set *S* contains all possible states *s* our agent can exist in. Imagine the state being a board configuration, a location, or a certain position your agent can exist in your game. When an Agent is in a state, it stays there until some action moves it from that state.
+
+- The set *A* contains all possible actions *a* our agent can take. Agents take actions to change states. An action has an associated value that determines how effective the action was. It is determined by the reward function.
+
+- The transition function determines the probability of moving to state *s*' given action *a* in state *s*. In our model, this is represented by the weights and biases of the neural network, so it can be ignored.
+
+- The reward function is the analytical approach to differentiating states. Based on being in some state *s*, V(s) computes the reward for being in this state. If you take action *a* in state *s*, then you can compute the reward of being in the resulting states with Q(s, a). This Q is the same Q in our algorithm name, and represents the method we use to 

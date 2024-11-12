@@ -1,6 +1,7 @@
 import random
 import chess
 import chess.engine
+import pygame
 import torch
 import torch.nn as nn
 import torch.optim as optim

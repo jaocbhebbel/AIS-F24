@@ -62,7 +62,32 @@ class ThunderByteCNN(nn.Module):
         x = torch.tanh(self.fc2(x))  # Output between -1 and 1
         return x
 
+#Monte Carlo Tree Search Algorithm for Model
+#Allows the CNN to explore different random moves and figure out how good a move is (q values)
+#Makes the CNN play better in simple terms
+class MCTS:
+    #Initialize the model qith q values and visit counts
+    def __init__(self, model, simulations = 1000):
+        self.model = model
+        self.simulations = simulations
+        self.q_values = {}  # Stores Q values for each board position
+        self.visit_counts = {}  # Tracks visit counts for each board position
+    
+    #Function to select amove based on the board
+    def select_move(self, board):
+        # Select the best move based on visit counts
+        legal_moves = list(board.legal_moves)
+        move_scores = {}
+        for move in legal_moves:
+            board.push(move)
+            move_scores[move] = self.q_values.get(board.fen(), 0) / self.visit_counts.get(board.fen(), 1)
+            board.pop()
         
+        best_move = max(move_scores, key=move_scores.get)
+        return best_move
+
+
+
 #Function to generate a random board for neural network to analyze
 def generate_board(board, depth):
     if (depth == 0): 
@@ -76,7 +101,7 @@ def generate_board(board, depth):
         generate_board(board, depth - 1)
 
 #Function to encode the different piece boards with 0s and 1s
-def encode_board(board){
+def encode_board(board):
     # 14 planes, 8x8 board
     # 12 planes for each piece on the board
     # 1 board for current turn (all 0s is black, 1s is white)
@@ -89,10 +114,12 @@ def encode_board(board){
         if piece:
             plane = (piece.piece_type - 1) + (0 if piece.color == chess.WHITE else 6)
             planes[plane, square // 8, square % 8] = 1
-    
+        else:
+            # Optional: You can add a comment or logic here for clarity
+            pass  # No piece on this square, leave it as zeros
     # After encoding, return planes with unsqueeze (which adds a dimension to the planes tensor)
     return planes.unsqueeze(0)
-}
+
 
 #Determine the Material on both sides 
 def calculate_material(board):

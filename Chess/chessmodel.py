@@ -76,6 +76,10 @@ class MCTS:
     
     #Function to select amove based on the board
     def select_move(self, board):
+        # Run MCTS simulations
+        for _ in range(self.simulations):
+            self.simulate(board)
+
         # Select the best move based on visit counts
         legal_moves = list(board.legal_moves)
         move_scores = {}
@@ -86,6 +90,51 @@ class MCTS:
         
         best_move = max(move_scores, key=move_scores.get)
         return best_move
+
+    #Simulate a game
+    def simulate(self, board):
+        if board.is_game_over():
+            return self.evaluate_terminal(board)
+        
+        # Initialize Q and N for a new position
+        board_fen = board.fen()
+        if board_fen not in self.q_values:
+            self.q_values[board_fen] = 0
+            self.visit_counts[board_fen] = 0
+            return self.evaluate(board)
+        
+        # Select a random legal move
+        legal_moves = list(board.legal_moves)
+        move = random.choice(legal_moves)
+        board.push(move)
+        reward = -self.simulate(board)
+        board.pop()
+
+        # Update Q and N values
+        self.q_values[board_fen] += reward
+        self.visit_counts[board_fen] += 1
+        return reward
+
+    #Evaluate the model based on material and nn eval
+    def evaluate(self, board):
+        # Encode the board for the model
+        board_tensor = encode_board(board)
+        with torch.no_grad():
+            nn_eval = self.model(board_tensor).item()
+        
+        # Blend the neural network evaluation with material evaluation
+        white_material, black_material = calculate_material(board)
+        material_eval = (white_material - black_material) / 10.0  # Normalize material scores
+        return nn_eval * 0.7 + material_eval * 0.3  # Weighted average
+
+    #Evaluate with tanh (-1/1)
+    def evaluate_terminal(self, board):
+        # Terminal evaluation based on game outcome
+        if board.is_checkmate():
+            return -1  # Loss
+        elif board.is_stalemate() or board.is_insufficient_material():
+            return 0  # Draw
+        return 1  # Win
 
 #Function to generate a random board for neural network to analyze
 def generate_board(board, depth):

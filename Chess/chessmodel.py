@@ -5,6 +5,7 @@ import pygame
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import assets
 from torchvision import datasets, transforms
 
 # define piece images
@@ -14,7 +15,7 @@ PIECE_IMAGES = {
     'b': 'black_bishop.png',
     'r': 'black_rook.png',
     'q': 'black_queen.png',
-    'k': 'black_king.png'
+    'k': 'black_king.png',
     'P': 'white_pawn.png',
     'N': 'white_knight.png',
     'B': 'white_bishop.png',
@@ -76,7 +77,7 @@ def generate_board(board, depth):
         generate_board(board, depth - 1)
 
 #Function to encode the different piece boards with 0s and 1s
-def encode_board(board){
+def encode_board(board):
     # 14 planes, 8x8 board
     # 12 planes for each piece on the board
     # 1 board for current turn (all 0s is black, 1s is white)
@@ -92,7 +93,6 @@ def encode_board(board){
     
     # After encoding, return planes with unsqueeze (which adds a dimension to the planes tensor)
     return planes.unsqueeze(0)
-}
 
 #Determine the Material on both sides 
 def calculate_material(board):
@@ -126,7 +126,7 @@ def calculate_material(board):
 def load_images():
     pieces = ['p', 'n', 'b', 'r', 'q', 'k', 'P', 'N', 'B', 'R', 'Q', 'K']
     for piece in pieces:
-        image = pygame.image.load(f'assets/pawn.png')
+        image = pygame.image.load(f'assets/black_pawn.png')
         image = pygame.transform.scale(image, (SQUARE_SIZE, SQUARE_SIZE))
         PIECE_IMAGES[piece] = image
 

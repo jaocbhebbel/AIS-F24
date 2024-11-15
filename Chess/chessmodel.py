@@ -197,6 +197,19 @@ def calculate_material(board):
 
     return white_material, black_material
 
+#Self play function
+def self_play(model, iterations=10):
+    for _ in range(iterations):
+        board = chess.Board()
+        mcts = MCTS(model)
+        
+        while not board.is_game_over():
+            move = mcts.select_move(board)
+            board.push(move)
+
+        # Evaluate game result and update model weights here if using reinforcement learning
+        print(f"Game result: {board.result()}")
+
 # load piece images
 def load_images():
     pieces = ['p', 'n', 'b', 'r', 'q', 'k', 'P', 'N', 'B', 'R', 'Q', 'K']

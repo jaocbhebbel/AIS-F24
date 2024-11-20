@@ -1,5 +1,5 @@
 import pygame
-import numpy as np
+from nn import agent
 
 # Initialize Pygame
 pygame.init()
@@ -10,10 +10,14 @@ CELL_SIZE = 80  # Cell size in pixels
 SCREEN_SIZE = BOARD_SIZE * CELL_SIZE
 WHITE, BLACK, EMPTY, HIGHLIGHT = 1, -1, 0, 2
 
+# Font builder
+font = pygame.font.Font(None, 36)
+
 # Colors
-GREEN = (34, 139, 34)
+GREEN_COLOR = (34, 139, 34)
 WHITE_COLOR = (255, 255, 255)
 BLACK_COLOR = (0, 0, 0)
+BLUE_COLOR = (0, 0, 255)
 HIGHLIGHT_COLOR = (255, 215, 0)
 
 # Initialize screen
@@ -29,8 +33,59 @@ board[3][4] = BLACK
 board[4][3] = BLACK
 board[4][4] = WHITE
 
+def draw_dialogue():
+    screen.fill(BLUE_COLOR)
+
+    # Draw pick color dialogue
+    input_box = pygame.Rect((150, 100), (350, 150))
+    white_button = pygame.Rect((175, 200), (80, 25))
+    black_button = pygame.Rect((400, 200), (80, 25))
+    response_box = pygame.Rect((150, 400), (100, 75))
+    
+    input_text = font.render("Choose your color:", True, GREEN_COLOR)
+    white_text = font.render("White", True, BLACK_COLOR)
+    black_text = font.render("Black", True, WHITE_COLOR)
+    
+    pygame.draw.rect(screen, BLUE_COLOR, input_box)
+    pygame.draw.rect(screen, WHITE_COLOR, white_button)
+    pygame.draw.rect(screen, BLACK_COLOR, black_button)
+
+    screen.blit(input_text, (input_box.x + 75, input_box.y))
+    screen.blit(white_text, (white_button.x, white_button.y))
+    screen.blit(black_text, (black_button.x, black_button.y))
+
+    continueFlag = False
+    pygame.display.flip()
+
+    while continueFlag == False:
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                continueFlag = True
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if black_button.collidepoint(event.pos):
+                    response_text = font.render("Good Luck!", True, BLACK_COLOR)
+                    pygame.draw.rect(screen, BLUE_COLOR, response_box)
+                    screen.blit(response_text, (response_box.x, response_box.y))
+                    pygame.display.flip()
+                    return False            # black is NOT AI
+                elif white_button.collidepoint(event.pos):
+                    response_text = font.render("Good Luck!", True, BLACK_COLOR)
+                    pygame.draw.rect(screen, BLUE_COLOR, response_box)
+                    screen.blit(response_text, (response_box.x, response_box.y))
+                    pygame.display.flip()
+                    return True             # black IS AI
+                else:
+                    response_text = font.render("Click a box", True, GREEN_COLOR)
+                    pygame.draw.rect(screen, BLUE_COLOR, response_box)
+                    screen.blit(response_text, (response_box.x, response_box.y))
+                    pygame.display.flip()
+
+
+
 def draw_board():
-    screen.fill(GREEN)
+    screen.fill(GREEN_COLOR)
+    
     # Draw grid
     for x in range(1, BOARD_SIZE):
         pygame.draw.line(screen, BLACK_COLOR, (x * CELL_SIZE, 0), (x * CELL_SIZE, SCREEN_SIZE))
@@ -93,9 +148,13 @@ def main():
     current_color = BLACK
     running = True
 
+    blackIsAI = draw_dialogue()
+
     while running:
         draw_board()
         pygame.display.flip()
+
+
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:

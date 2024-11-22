@@ -5,23 +5,22 @@ import pygame
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import assets
 from torchvision import datasets, transforms
 
 # define piece images
 PIECE_IMAGES = {
-    'p': 'black_pawn.png',
-    'n': 'black_knight.png',
-    'b': 'black_bishop.png',
-    'r': 'black_rook.png',
-    'q': 'black_queen.png',
-    'k': 'black_king.png',
-    'P': 'white_pawn.png',
-    'N': 'white_knight.png',
-    'B': 'white_bishop.png',
-    'R': 'white_rook.png',
-    'Q': 'white_queen.png',
-    'K': 'white_king.png',
+    'p': 'blackpawn.png',
+    'n': 'blackknight.png',
+    'b': 'blackbishop.png',
+    'r': 'blackrook.png',
+    'q': 'blackqueen.png',
+    'k': 'blackking.png',
+    'P': 'whitepawn.png',
+    'N': 'whiteknight.png',
+    'B': 'whitebishop.png',
+    'R': 'whiterook.png',
+    'Q': 'whitequeen.png',
+    'K': 'whiteking.png',
 }
 
 # initialize pygame
@@ -152,7 +151,7 @@ def calculate_material(board):
 def load_images():
     pieces = ['p', 'n', 'b', 'r', 'q', 'k', 'P', 'N', 'B', 'R', 'Q', 'K']
     for piece in pieces:
-        image = pygame.image.load(f'assets/black_pawn.png')
+        image = pygame.image.load(f'./assets/blackpawn.png')
         image = pygame.transform.scale(image, (SQUARE_SIZE, SQUARE_SIZE))
         PIECE_IMAGES[piece] = image
 

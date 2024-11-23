@@ -1,8 +1,24 @@
 ## our neural network
+import numpy as np
+import torch
+import torch.nn as nn
 
-class agent:
+class Agent:
     
-    def placeMove(board, self):
+    def __init__(self, color, model):
+        Agent.color = color
+        Agent.model = model
+
+    def placeMove(self, board):
         
-        move = 2 ## puts board into NN and gets move back
+        x, y = self.determineMove(board.flatten())
+        board[x][y] = self.color
+
+        # flatten the board to 1D array,
+        # and pass it thorugh the model
         return board
+    
+    def determineMove(self, input_array):
+        # pass input array into NN
+        # take output and return as tuple
+        return (0, 0)

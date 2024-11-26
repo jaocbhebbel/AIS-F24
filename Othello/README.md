@@ -34,4 +34,19 @@ A MDP utilizes these 5 processes: Actions, States, the Transition Function, the 
 
 - The transition function determines the probability of moving to state *s*' given action *a* in state *s*. In our model, this is represented by the weights and biases of the neural network, so it can be ignored.
 
-- The reward function is the analytical approach to differentiating states. Based on being in some state *s*, V(s) computes the reward for being in this state. If you take action *a* in state *s*, then you can compute the reward of being in the resulting states with Q(s, a). This Q is the same Q in our algorithm name, and represents the method we use to 
+- The reward function is the analytical approach to differentiating states. Based on being in some state *s*, V(s) computes the reward for being in this state. If you take action *a* in state *s*, then you can compute the reward of being in the resulting states with Q(s, a). This Q is the same Q in our algorithm name, and represents a function that computes the
+
+## how we are implementing this
+
+Our DQN needs the following things:
+- A Neural Network that approximates the Policy Function
+- A Reward Function that computes the reward for (s, a)
+- A loss function that computes the loss between a chosen a from Qp(s) and the associated state-action pair input to a Qt
+
+### The Policy Function
+
+In MDP, the policy determines which action *a* to take in state *s*. This action is taken, and then the process is repeated until the end state is reached. The policy works to maximize the reward associated with (*s*, *a*). 
+
+Because Othello has such an involved set of states and rewards, this policy must be approximated with a neural network. The neural network (Q) takes as an input some state *s*, and returns a vector of Q-values, with the index in this vector corresponding to an action *a*
+
+Q(*s*) = \[Q<sub>0</sub>, Q<sub>1</sub>, Q<sub>2</sub>, ... \], 

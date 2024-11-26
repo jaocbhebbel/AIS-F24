@@ -1,8 +1,9 @@
 import pygame
+import random
 from NewCombos import generate_all_unique_valid_states, check_winner
 
 class TicTacToePygame:
-    def __init__(self):
+    def __init__(self, ai_player=None):
         pygame.init()
         
         # Screen dimensions
@@ -25,6 +26,9 @@ class TicTacToePygame:
         self.board = [0] * 9
         self.current_turn = 1  # 1 for X, 2 for O
         self.running = True
+        
+        # AI settings
+        self.ai_player = ai_player  # None, 1 (X), or 2 (O)
         
         # Pre-computed valid states
         self.valid_states = generate_all_unique_valid_states()
@@ -60,18 +64,27 @@ class TicTacToePygame:
             row, col = y // self.cell_size, x // self.cell_size
             idx = row * 3 + col
             if self.board[idx] == 0:  # Valid move
-                self.board[idx] = self.current_turn
-
-                winner = check_winner(self.board)
-                if winner:
-                    self.display_winner(winner)
-                elif all(space != 0 for space in self.board):
-                    self.display_draw()
-                else:
-                    self.current_turn = 2 if self.current_turn == 1 else 1
+                self.make_move(idx)
         else:  # Check if reset button was clicked
             if self.screen_size // 3 <= x <= 2 * self.screen_size // 3 and self.screen_size + 10 <= y <= self.screen_size + 70:
                 self.reset_board()
+
+    def make_move(self, idx):
+        self.board[idx] = self.current_turn
+
+        winner = check_winner(self.board)
+        if winner:
+            self.display_winner(winner)
+        elif all(space != 0 for space in self.board):
+            self.display_draw()
+        else:
+            self.current_turn = 2 if self.current_turn == 1 else 1
+
+    def ai_move(self):
+        empty_indices = [i for i, cell in enumerate(self.board) if cell == 0]
+        if empty_indices:
+            move = random.choice(empty_indices)
+            self.make_move(move)
 
     def display_winner(self, winner):
         self.draw_board()
@@ -97,17 +110,21 @@ class TicTacToePygame:
 
     def run(self):
         while self.running:
+            if self.ai_player == self.current_turn:
+                self.ai_move()
+            
             self.draw_board()
             pygame.display.flip()
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
-                elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and self.ai_player != self.current_turn:
                     self.check_click(event.pos)
 
         pygame.quit()
 
 if __name__ == "__main__":
-    game = TicTacToePygame()
+    # Change ai_player to None for 2-player mode, 1 for AI as X, or 2 for AI as O
+    game = TicTacToePygame(ai_player=None)
     game.run()

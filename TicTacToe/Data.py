@@ -1,4 +1,5 @@
 import random
+import os
 
 def generate_all_unique_valid_states():
     """Generate all unique, valid Tic-Tac-Toe states (avoiding symmetries)."""
@@ -77,9 +78,17 @@ def generate_tic_tac_toe_data():
 # Generate the data
 data = generate_tic_tac_toe_data()
 
-# Save data to a file or use directly for training
-with open("tic_tac_toe_data.txt", "w") as f:
+
+# Get the current working directory
+current_directory = os.getcwd()
+
+# Specify the path for the file in the current directory
+file_path = os.path.join("TicTacToe", "tic_tac_toe_data.txt")
+
+# Write to the file in the current directory
+with open(file_path, "w") as f:
     for board, move in data:
         f.write(f"{board}, {move}\n")
+
 
 print(f"Generated {len(data)} training examples.")

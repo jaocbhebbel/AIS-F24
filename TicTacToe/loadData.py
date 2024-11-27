@@ -1,4 +1,5 @@
 import torch
+import os
 from torch.utils.data import Dataset, DataLoader
 
 # Define a custom Dataset class for Tic Tac Toe
@@ -6,6 +7,9 @@ class TicTacToeDataset(Dataset):
     def __init__(self, file_path):
         """Initialize the dataset by loading and parsing the data from the file."""
         self.data = []
+        # Specify the path for the file in the current directory
+        file_path = os.path.join("TicTacToe", "tic_tac_toe_data.txt")
+
         with open(file_path, "r") as f:
             for line in f:
                 board_str = line.strip()

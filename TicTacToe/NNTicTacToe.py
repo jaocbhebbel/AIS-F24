@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from loadData import train_loader, val_loader  # Import the data loaders
 
 class TicTacToeNN(nn.Module):
     def __init__(self):
@@ -24,19 +25,41 @@ model = TicTacToeNN()
 criterion = nn.CrossEntropyLoss()  # Suitable for classification tasks
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
-# Example training loop
-def train(model, optimizer, criterion, epochs, data_loader):
-    model.train()
+# Add scheduler for dynamic learning rate
+scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=5, gamma=0.5)
+
+# Enhanced training loop with validation accuracy tracking
+def train(model, optimizer, criterion, epochs, train_loader, val_loader):
     for epoch in range(epochs):
-        for board_states, labels in data_loader:  # Assuming data_loader provides (input, target)
-            optimizer.zero_grad()  # Zero the gradient buffers
-            outputs = model(board_states)  # Forward pass
-            loss = criterion(outputs, labels)  # Compute loss
-            loss.backward()  # Backpropagation
-            optimizer.step()  # Update weights
+        model.train()
+        running_loss = 0.0
+        for board_states, labels in train_loader:
+            optimizer.zero_grad()
+            outputs = model(board_states)
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
+            running_loss += loss.item()
 
-        print(f"Epoch {epoch+1}/{epochs}, Loss: {loss.item():.4f}")
+        scheduler.step()  # Update learning rate
 
-# Example usage
-# You need to define a DataLoader (data_loader) providing board states and labels
-# train(model, optimizer, criterion, epochs=10, data_loader=data_loader)
+        # Validation phase
+        model.eval()
+        correct = 0
+        total = 0
+        with torch.no_grad():
+            for board_states, labels in val_loader:
+                outputs = model(board_states)
+                _, predicted = torch.max(outputs, 1)
+                total += labels.size(0)
+                correct += (predicted == labels).sum().item()
+
+        val_accuracy = 100 * correct / total
+        print(f"Epoch {epoch+1}, Loss: {running_loss / len(train_loader):.4f}, Validation Accuracy: {val_accuracy:.2f}%")
+
+        if val_accuracy >= 90.0:
+            print("Target reached!")
+            break
+
+# Train the model
+train(model, optimizer, criterion, epochs=20, train_loader=train_loader, val_loader=val_loader)

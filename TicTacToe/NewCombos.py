@@ -112,6 +112,7 @@ def generate_all_unique_valid_states():
 
 def write_to_file(visited, filename="tic_tac_toe_valid_states.txt"):
     """Write all unique, valid states to a file."""
+        
     with open(filename, "w") as f:
         for state in visited:
             f.write(' '.join(map(str, state)) + '\n')

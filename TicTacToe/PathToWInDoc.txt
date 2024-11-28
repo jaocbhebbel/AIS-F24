@@ -1,0 +1,28 @@
+This Python script generates all valid Tic-Tac-Toe boards that result in a win for either Player X or Player O and tracks the sequence 
+of moves leading to these wins. The program systematically explores all possible board configurations, validates them based on game rules, 
+and identifies winning boards while reconstructing the corresponding game sequences.
+
+The function `is_winner` checks whether a player has achieved a winning combination on a given board. Winning conditions include completing 
+any row, column, or diagonal with the same symbol (X or O). The `is_valid_board` function ensures that each board state follows the rules of 
+Tic-Tac-Toe: 
+
+- The number of X’s must equal or exceed the number of O’s by at most one.
+- Both players cannot win simultaneously.
+- If X wins, X must have one more move than O. If O wins, the counts of X and O must match.
+
+The primary function, `generate_winning_sequences`, uses these validations. It employs `itertools.product` to generate all possible 
+configurations of the board, with each cell being either "X," "O," or empty (" "). For each configuration, the script validates the 
+board and checks if there is a winner. For valid boards with a winner, it reconstructs the sequence of moves that led to the win.
+
+A game sequence is tracked as a series of moves, such as "Turn 1: [1, 1] - X," where `[1, 1]` represents the move on the grid,
+and `X` indicates the player. Starting from an empty board, moves are applied one at a time to recreate how the game progressed 
+to its final state.
+
+The script prints examples of winning boards along with their move sequences. For instance, one output might display a game 
+where X wins by completing the top row, and the sequence of moves leading to that win is detailed step-by-step. The total number of 
+valid winning boards is also displayed, providing insight into the space of winning Tic-Tac-Toe games.
+
+This script is not only a tool for understanding Tic-Tac-Toe logic but also a useful resource for AI training or game analysis.
+Its flexibility allows for potential extensions, such as saving outputs to files, filtering wins by player, or adding graphical 
+representations. By generating detailed training data and game sequences, this tool is well-suited for projects focused on machine
+learning or exploring optimal game strategies. It provides an engaging way to analyze a simple yet strategic game.

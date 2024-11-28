@@ -1,0 +1,1 @@
+This folder will hold all progress I made in building a neural network for the game TikTacToe. 
